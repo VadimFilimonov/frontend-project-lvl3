@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/VadimFilimonov/frontend-project-lvl3#readme",
   "dependencies": {
-    "bootstrap": "^4.6.0"
+    "axios": "^0.21.1",
+    "bootstrap": "^4.6.0",
+    "on-change": "^2.2.3",
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
