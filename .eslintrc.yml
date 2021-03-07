@@ -6,6 +6,10 @@ env:
 
 extends:
   - airbnb-base
+  - plugin:prettier/recommended
+
+plugins:
+  - prettier
 
 parser: babel-eslint
 

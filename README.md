@@ -8,11 +8,29 @@
 ## Setup
 
 ```sh
-npm install
+make install
+```
+
+## Build
+
+```sh
+make build
+```
+
+## Run
+
+```sh
+make develop
 ```
 
 ## Run lint
 
 ```sh
 make lint
+```
+
+## Run tests
+
+```sh
+make test
 ```
