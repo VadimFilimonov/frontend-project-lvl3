@@ -66,29 +66,32 @@ const getPosts = (xml) => {
   return mapped;
 };
 
-const validate = (url) => schema.validate({ url });
-
 const onSubmit = (event) => {
   event.preventDefault();
   const formData = new FormData(event.target);
   const url = formData.get('url');
-  validate(url)
+  schema
+    .validate({ url })
     .then(() => {
-      processForm();
-      return axios.get(proxyUrl(url));
-    })
-    .then((response) => {
-      const xmlDom = parseXML(response.data.contents);
-      const newFeed = getFeed(xmlDom);
-      const newPosts = getPosts(xmlDom);
-      watchedState.urls.push(url);
-      watchedState.feeds.push(newFeed);
-      watchedState.posts.push(...newPosts);
-      return response.data.contents;
+      axios
+        .get(proxyUrl(url))
+        .then((response) => {
+          const xmlDom = parseXML(response.data.contents);
+          const newFeed = getFeed(xmlDom);
+          const newPosts = getPosts(xmlDom);
+          watchedState.errors = [];
+          watchedState.urls.push(url);
+          watchedState.feeds.push(newFeed);
+          watchedState.posts.push(...newPosts);
+          processForm();
+        })
+        .catch(() => {
+          watchedState.errors = ['Network error'];
+        });
     })
     .catch((e) => {
       const [error] = e.errors;
-      showError(error);
+      watchedState.errors = [error];
     });
 };
 
@@ -138,6 +141,7 @@ const subscribe = () => {
 
 const initState = () => {
   state = {
+    errors: [],
     urls: [],
     feeds: [],
     posts: [],
@@ -160,6 +164,9 @@ const initState = () => {
         </ul>
       `;
       posts.innerHTML = html;
+    }
+    if (path === 'errors') {
+      showError(value);
     }
   });
 };
