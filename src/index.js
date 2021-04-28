@@ -2,20 +2,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
+import initLocales from './initLocales';
 
 let state;
 let watchedState;
-
-const schema = yup.object().shape({
-  url: yup
-    .string()
-    .url('Ресурс не содержит валидный RSS')
-    .test(
-      'Uniq url',
-      'RSS уже существует',
-      (value) => !state.urls.includes(value)
-    ),
-});
+let i18nInstance;
+let schema;
 
 const form = document.querySelector('form');
 const input = form.querySelector('input');
@@ -38,7 +30,7 @@ const processForm = () => {
   input.classList.remove('is-invalid');
   feedback.classList.remove('text-danger');
   feedback.classList.add('text-success');
-  feedback.textContent = 'RSS успешно загружен';
+  feedback.textContent = i18nInstance.t('rss.downloaded');
   form.reset();
 };
 
@@ -86,7 +78,7 @@ const onSubmit = (event) => {
           processForm();
         })
         .catch(() => {
-          watchedState.errors = ['Network error'];
+          watchedState.errors = [i18nInstance.t('network_error')];
         });
     })
     .catch((e) => {
@@ -128,7 +120,7 @@ const renderPosts = (value) =>
             data-toggle="modal"
             data-target="#modal"
           >
-            Просмотр
+            ${i18nInstance.t('viewing')}
           </button>
         </li>
       `
@@ -137,6 +129,19 @@ const renderPosts = (value) =>
 
 const subscribe = () => {
   form.addEventListener('submit', onSubmit);
+};
+
+const initSchema = () => {
+  schema = yup.object().shape({
+    url: yup
+      .string()
+      .url(i18nInstance.t('rss.invalid'))
+      .test(
+        'Uniq url',
+        i18nInstance.t('rss.exist'),
+        (value) => !state.urls.includes(value)
+      ),
+  });
 };
 
 const initState = () => {
@@ -149,7 +154,7 @@ const initState = () => {
   watchedState = onChange(state, (path, value) => {
     if (path === 'feeds') {
       const html = `
-        <h2>Фиды</h2>
+        <h2>${i18nInstance.t('feeds')}</h2>
         <ul class="list-group mb-5">
           ${renderFeeds(value)}
         </ul>
@@ -158,9 +163,9 @@ const initState = () => {
     }
     if (path === 'posts') {
       const html = `
-        <h2>Посты</h2>
+        <h2>${i18nInstance.t('posts')}</h2>
         <ul class="list-group">
-          ${renderPosts(value)}
+          ${renderPosts(value, i18nInstance)}
         </ul>
       `;
       posts.innerHTML = html;
@@ -171,7 +176,9 @@ const initState = () => {
   });
 };
 
-const init = () => {
+const init = async () => {
+  i18nInstance = await initLocales();
+  initSchema();
   initState();
   subscribe();
 };
