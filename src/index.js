@@ -36,7 +36,7 @@ const processForm = () => {
 
 const parseXML = (string) => {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(string, 'text/html');
+  const doc = parser.parseFromString(string, 'application/xml');
   return doc;
 };
 
@@ -53,7 +53,7 @@ const getPosts = (xml) => {
     guid: item.querySelector('guid').textContent,
     link: item.querySelector('link').textContent,
     description: item.querySelector('description').textContent,
-    pubdate: item.querySelector('pubdate').textContent,
+    pubdate: item.querySelector('pubDate').textContent,
   }));
   return mapped;
 };
