@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = {
   mode: process.env.NODE_ENV || 'development',
@@ -21,5 +22,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'template.html',
     }),
+    new NodePolyfillPlugin(),
   ],
 };
