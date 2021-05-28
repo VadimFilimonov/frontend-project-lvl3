@@ -58,29 +58,31 @@ const getPosts = (xml) => {
   return mapped;
 };
 
+const sendRequest = (url) => {
+  return axios
+    .get(proxyUrl(url))
+    .then((response) => {
+      const xmlDom = parseXML(response.data.contents);
+      const newFeed = getFeed(xmlDom);
+      const newPosts = getPosts(xmlDom);
+      watchedState.errors = [];
+      watchedState.feeds.push(newFeed);
+      watchedState.posts.push(...newPosts);
+      processForm();
+    })
+    .catch(() => {
+      watchedState.errors = [i18nInstance.t('network_error')];
+    });
+};
+
 const onSubmit = (event) => {
   event.preventDefault();
   const formData = new FormData(event.target);
   const url = formData.get('url');
   schema
     .validate({ url })
-    .then(() => {
-      axios
-        .get(proxyUrl(url))
-        .then((response) => {
-          const xmlDom = parseXML(response.data.contents);
-          const newFeed = getFeed(xmlDom);
-          const newPosts = getPosts(xmlDom);
-          watchedState.errors = [];
-          watchedState.urls.push(url);
-          watchedState.feeds.push(newFeed);
-          watchedState.posts.push(...newPosts);
-          processForm();
-        })
-        .catch(() => {
-          watchedState.errors = [i18nInstance.t('network_error')];
-        });
-    })
+    .then(() => watchedState.urls.push(url))
+    .then(() => sendRequest(url))
     .catch((e) => {
       const [error] = e.errors;
       watchedState.errors = [error];
